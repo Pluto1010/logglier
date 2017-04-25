@@ -109,13 +109,16 @@ module Logglier
                   exit_after_this_round = true
                 end
 
-                msg = bulk_messages.join("\n")
+                unless bulk_messages.empty?
+                  msg = bulk_messages.join("\n")
+                  @http.deliver(msg)
+                end
               else
                 msg = @queue.pop
                 break if msg == :__delivery_thread_exit_signal__
+                @http.deliver(msg)
               end
 
-              @http.deliver(msg)
               break if exit_after_this_round
             end
           end
